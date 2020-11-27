@@ -14,14 +14,17 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class WorkshopDetailPage extends StatefulWidget {
   final BuiltWorkshopSummaryPost workshop;
   final bool isPast;
+
   WorkshopDetailPage({Key key, this.workshop, this.isPast = false})
       : super(key: key);
+
   @override
   _WorkshopDetailPage createState() => _WorkshopDetailPage();
 }
 
 class _WorkshopDetailPage extends State<WorkshopDetailPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final PanelController _panelController = PanelController();
   BuiltWorkshopSummaryPost workshopSummary;
 
   BuiltWorkshopDetailPost _workshop;
@@ -232,6 +235,14 @@ class _WorkshopDetailPage extends State<WorkshopDetailPage> {
     _reload();
   }
 
+  Future<bool> _willPopCallback() async {
+    if (_panelController.isPanelOpen) {
+      _panelController.close();
+    } else {
+      return true;
+    }
+  }
+
   BorderRadiusGeometry radius = BorderRadius.only(
     topLeft: Radius.circular(24.0),
     topRight: Radius.circular(24.0),
@@ -253,24 +264,28 @@ class _WorkshopDetailPage extends State<WorkshopDetailPage> {
 
     return SafeArea(
       minimum: const EdgeInsets.all(2.0),
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: ColorConstants.backgroundThemeColor,
-        body: SlidingUpPanel(
-          body: workshopDetailCustomWidgets.getPanelBackground(),
-          borderRadius: radius,
-          backdropEnabled: true,
-          parallaxEnabled: true,
-          collapsed: Container(
-            decoration: BoxDecoration(
-              borderRadius: radius,
+      child: WillPopScope(
+        onWillPop: _willPopCallback,
+        child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: ColorConstants.backgroundThemeColor,
+          body: SlidingUpPanel(
+            controller: _panelController,
+            body: workshopDetailCustomWidgets.getPanelBackground(),
+            borderRadius: radius,
+            backdropEnabled: true,
+            parallaxEnabled: true,
+            collapsed: Container(
+              decoration: BoxDecoration(
+                borderRadius: radius,
+              ),
             ),
+            minHeight: ClubCouncilAndEntityWidgets.getMinPanelHeight(context),
+            maxHeight: ClubCouncilAndEntityWidgets.getMaxPanelHeight(context),
+            header: workshopDetailCustomWidgets.getPanelHeader(context),
+            panelBuilder: (ScrollController sc) =>
+                workshopDetailCustomWidgets.getPanel(sc: sc),
           ),
-          minHeight: ClubCouncilAndEntityWidgets.getMinPanelHeight(context),
-          maxHeight: ClubCouncilAndEntityWidgets.getMaxPanelHeight(context),
-          header: workshopDetailCustomWidgets.getPanelHeader(context),
-          panelBuilder: (ScrollController sc) =>
-              workshopDetailCustomWidgets.getPanel(sc: sc),
         ),
       ),
     );
