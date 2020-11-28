@@ -158,7 +158,9 @@ class WorkshopDetailCustomWidgets {
                             builder: (context) =>
                                 ResourceCreateScreen(workshopDetail),
                           ),
-                        )
+                        ).then((isEdited) {
+                          if (isEdited) reload();
+                        })
                       },
                     )
                   : Container()
@@ -436,13 +438,17 @@ class WorkshopDetailCustomWidgets {
                                       bool shouldCalendarBeOpened =
                                           await CreatePageDialogBoxes
                                               .confirmCalendarOpenDialog(
-                                                  context: context);
+                                                  context: context,
+                                                  workshopOrEvent:
+                                                      workshopDetail.is_workshop
+                                                          ? 'workshop'
+                                                          : 'event');
                                       if (shouldCalendarBeOpened == true) {
                                         final String _calendarUrl =
                                             AppConstants.addEventToCalendarLink(
                                                 workshop: workshopDetail);
                                         print(
-                                            'add event to calendar URL: $_calendarUrl');
+                                            'add workshop/event to calendar URL: $_calendarUrl');
                                         launch(_calendarUrl);
                                       }
                                     }

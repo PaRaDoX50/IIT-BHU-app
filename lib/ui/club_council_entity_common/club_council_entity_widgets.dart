@@ -80,6 +80,7 @@ class ClubCouncilAndEntityWidgets {
                           title: _data.name,
                           id: _data.id,
                           imageUrl: _data.large_image_url,
+                          isClub: isClub,
                           isCouncil: isCouncil,
                           isEntity: isEntity,
                           context: context),
@@ -197,6 +198,20 @@ class ClubCouncilAndEntityWidgets {
         ],
       );
     }
+    
+    var _icons=List<Widget>();
+    if(map.youtube_url != null && map.youtube_url.length != 0)
+    _icons.add(_buildButtonColumn(FontAwesomeIcons.youtube, 'YouTube', map.youtube_url),);
+    if(map.website_url != null && map.website_url.length != 0)
+    _icons.add(_buildButtonColumn(Icons.web, 'Website', map.website_url),);
+    if(map.linkedin_url != null && map.linkedin_url.length != 0)
+    _icons.add(_buildButtonColumn(FontAwesomeIcons.linkedin,'LinkedIn', map.linkedin_url),);
+    if(map.instagram_url != null && map.instagram_url.length != 0)
+    _icons.add(_buildButtonColumn(FontAwesomeIcons.instagram, 'Instagaram', map.instagram_url),);
+    if(map.facebook_url != null && map.facebook_url.length != 0)
+    _icons.add(_buildButtonColumn(FontAwesomeIcons.facebook, 'Facebook', map.facebook_url),);
+    if(map.twitter_url != null && map.twitter_url.length != 0)
+    _icons.add(_buildButtonColumn(FontAwesomeIcons.twitter, 'Twitter', map.twitter_url),);
 
     return Container(
       height: 100,
@@ -206,31 +221,7 @@ class ClubCouncilAndEntityWidgets {
           borderRadius: BorderRadius.all(Radius.circular(10))),*/
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          map.youtube_url == null || map.youtube_url.length == 0
-              ? Container()
-              : _buildButtonColumn(
-                  FontAwesomeIcons.youtube, 'YouTube', map.youtube_url),
-          map.website_url == null || map.website_url.length == 0
-              ? Container()
-              : _buildButtonColumn(Icons.web, 'Website', map.website_url),
-          map.linkedin_url == null || map.linkedin_url.length == 0
-              ? Container()
-              : _buildButtonColumn(
-                  FontAwesomeIcons.linkedin, 'LinkedIn', map.linkedin_url),
-          map.instagram_url == null || map.instagram_url.length == 0
-              ? Container()
-              : _buildButtonColumn(
-                  FontAwesomeIcons.instagram, 'Instagram', map.instagram_url),
-          map.facebook_url == null || map.facebook_url.length == 0
-              ? Container()
-              : _buildButtonColumn(
-                  FontAwesomeIcons.facebook, 'Facebook', map.facebook_url),
-          map.twitter_url == null || map.twitter_url.length == 0
-              ? Container()
-              : _buildButtonColumn(
-                  FontAwesomeIcons.twitter, 'Twitter', map.twitter_url),
-        ],
+        children: _icons,
       ),
     );
   }
@@ -373,39 +364,46 @@ class ClubCouncilAndEntityWidgets {
     String imageUrl,
     bool isCouncil = false,
     bool isEntity = false,
+    bool isClub = false,
     horizontal = false,
     ClubListPost club,
     EntityListPost entity,
     String clubTypeForHero = 'default',
     String entityTypeForHero = 'default',
   }) {
-    if (isCouncil == false) {
-      final File clubLogoFile =
-          AppConstants.getImageFile(isSmall: true, id: id, isClub: true);
-      if (clubLogoFile == null) {
-        AppConstants.writeImageFileIntoDisk(
-            isClub: true, isSmall: true, id: id, url: imageUrl);
-      }
-    }
+    int _counter = 0;
+    if (isCouncil) _counter++;
+    if (isClub) _counter++;
+    if (isEntity) _counter++;
 
-    if (isEntity) {
-      final File entityLogoFile = AppConstants.getImageFile(
-        isSmall: true,
-        id: id,
-        isEntity: true,
-      );
-      if (entityLogoFile == null) {
-        AppConstants.writeImageFileIntoDisk(
-            isEntity: true, isSmall: true, id: id, url: imageUrl);
-      }
-    }
+    assert(_counter == 1, 'All three, council club entity , can not be true');
 
-    final File _largeLogofile = AppConstants.getImageFile(
-        isCouncil: isCouncil,
-        isClub: !isCouncil,
-        isEntity: isEntity,
-        isSmall: false,
-        id: id);
+    bool isSmall = horizontal;
+
+    File logoFile = AppConstants.getImageFile(
+      isSmall: isSmall,
+      id: id,
+      isEntity: isEntity,
+      isClub: isClub,
+      isCouncil: isCouncil,
+    );
+
+    if (logoFile == null) {
+      AppConstants.writeImageFileIntoDisk(
+          isSmall: isSmall,
+          id: id,
+          isEntity: isEntity,
+          isClub: isClub,
+          isCouncil: isCouncil,
+          url: imageUrl);
+    }
+    logoFile = AppConstants.getImageFile(
+      isSmall: isSmall,
+      id: id,
+      isEntity: isEntity,
+      isClub: isClub,
+      isCouncil: isCouncil,
+    );
 
     final clubThumbnail = Container(
       margin: EdgeInsets.symmetric(vertical: 16.0),
@@ -420,9 +418,9 @@ class ClubCouncilAndEntityWidgets {
               fit: BoxFit.contain,
               image: imageUrl == null || imageUrl == ''
                   ? AssetImage('assets/iitbhu.jpeg')
-                  : _largeLogofile == null
+                  : logoFile == null
                       ? NetworkImage(imageUrl)
-                      : FileImage(_largeLogofile),
+                      : FileImage(logoFile),
             ),
           ),
           height: horizontal ? 50 : 82,
@@ -441,9 +439,9 @@ class ClubCouncilAndEntityWidgets {
             fit: BoxFit.contain,
             image: imageUrl == null || imageUrl == ''
                 ? AssetImage('assets/iitbhu.jpeg')
-                : _largeLogofile == null
+                : logoFile == null
                     ? NetworkImage(imageUrl)
-                    : FileImage(_largeLogofile),
+                    : FileImage(logoFile),
           ),
         ),
         height: 92.0,
@@ -464,9 +462,9 @@ class ClubCouncilAndEntityWidgets {
               fit: BoxFit.contain,
               image: imageUrl == null || imageUrl == ''
                   ? AssetImage('assets/iitbhu.jpeg')
-                  : _largeLogofile == null
+                  : logoFile == null
                       ? NetworkImage(imageUrl)
-                      : FileImage(_largeLogofile),
+                      : FileImage(logoFile),
             ),
           ),
           height: horizontal ? 50 : 82,

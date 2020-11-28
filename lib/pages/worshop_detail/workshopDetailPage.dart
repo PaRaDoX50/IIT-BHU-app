@@ -155,7 +155,7 @@ class _WorkshopDetailPage extends State<WorkshopDetailPage> {
 
   void deleteWorkshop() async {
     bool isConfirmed = await CreatePageDialogBoxes.confirmDialog(
-        context: context, action: 'Delete');
+        context: context, title: 'Delete', action: 'Delete');
     if (isConfirmed == true) {
       AppConstants.service
           .removeWorkshop(workshopSummary.id, AppConstants.djangoToken)
@@ -266,6 +266,8 @@ class _WorkshopDetailPage extends State<WorkshopDetailPage> {
       minimum: const EdgeInsets.all(2.0),
       child: WillPopScope(
         onWillPop: _willPopCallback,
+      child: RefreshIndicator(
+        onRefresh: () async => _reload(),
         child: Scaffold(
           key: _scaffoldKey,
           backgroundColor: ColorConstants.backgroundThemeColor,
